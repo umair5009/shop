@@ -13,7 +13,10 @@ const customerSchema = new mongoose.Schema({
   phone: String,
   email: String,
   address: String,
-  creditLimit: { type: Number, default: 0 },
+  area: String,
+  cnic: String,
+  licenseNo: String,
+  customerNo: String,
   runningBalance: { type: Number, default: 0 }, // positive = customer owes
   status: { type: String, enum: ['active','locked'], default: 'active' },
   ledger: [ledgerItem]

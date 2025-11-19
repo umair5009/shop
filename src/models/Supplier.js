@@ -5,6 +5,10 @@ const supplierSchema = new mongoose.Schema({
   phone: String,
   email: String,
   address: String,
+  area: String,
+  cnic: String,
+  licenseNo: String,
+  supplierNo: String,
   runningBalance: { type: Number, default: 0 },
   ledger: [{ type: Object }]
 }, { timestamps: true });

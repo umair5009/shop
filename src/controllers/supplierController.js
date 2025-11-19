@@ -9,6 +9,10 @@ const createSupplier = async (req, res) => {
     phone: Joi.string().allow('', null),
     email: Joi.string().email().allow('', null),
     address: Joi.string().allow('', null),
+    area: Joi.string().allow('', null),
+    cnic: Joi.string().allow('', null),
+    licenseNo: Joi.string().allow('', null),
+    supplierNo: Joi.string().allow('', null),
     openingBalance: Joi.number().min(0).default(0)
   });
   const { error, value } = schema.validate(req.body);
@@ -19,6 +23,10 @@ const createSupplier = async (req, res) => {
     phone: value.phone,
     email: value.email,
     address: value.address,
+    area: value.area,
+    cnic: value.cnic,
+    licenseNo: value.licenseNo,
+    supplierNo: value.supplierNo,
     runningBalance: value.openingBalance,
     ledger: value.openingBalance ? [{ type: 'opening', amount: value.openingBalance, date: new Date(), note: 'Opening balance' }] : []
   });
@@ -35,7 +43,7 @@ const getSuppliers = async (req, res) => {
 
   const total = await Supplier.countDocuments(filter);
   const suppliers = await Supplier.find(filter)
-    .select('name phone email address runningBalance')
+    .select('name phone email address area cnic licenseNo supplierNo runningBalance')
     .skip((page-1)*limit)
     .limit(limit)
     .sort({ createdAt: -1 });
@@ -66,7 +74,11 @@ const updateSupplier = async (req, res) => {
     name: Joi.string().optional(),
     phone: Joi.string().allow('', null).optional(),
     email: Joi.string().email().allow('', null).optional(),
-    address: Joi.string().allow('', null).optional()
+    address: Joi.string().allow('', null).optional(),
+    area: Joi.string().allow('', null).optional(),
+    cnic: Joi.string().allow('', null).optional(),
+    licenseNo: Joi.string().allow('', null).optional(),
+    supplierNo: Joi.string().allow('', null).optional()
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });

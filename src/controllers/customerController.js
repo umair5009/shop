@@ -8,7 +8,10 @@ const createCustomer = async (req, res) => {
     phone: Joi.string().allow('', null).optional(),
     email: Joi.string().email().allow('', null).optional(),
     address: Joi.string().allow('', null).optional(),
-    creditLimit: Joi.number().default(0)
+    area: Joi.string().allow('', null).optional(),
+    cnic: Joi.string().allow('', null).optional(),
+    licenseNo: Joi.string().allow('', null).optional(),
+    customerNo: Joi.string().allow('', null).optional()
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
@@ -18,7 +21,10 @@ const createCustomer = async (req, res) => {
     phone: value.phone,
     email: value.email,
     address: value.address,
-    creditLimit: value.creditLimit
+    area: value.area,
+    cnic: value.cnic,
+    licenseNo: value.licenseNo,
+    customerNo: value.customerNo
   });
   res.json(c);
 };
@@ -33,7 +39,7 @@ const getCustomers = async (req, res) => {
 
   const total = await Customer.countDocuments(filter);
   const customers = await Customer.find(filter)
-    .select('name phone email address creditLimit runningBalance status')
+    .select('name phone email address area cnic licenseNo customerNo runningBalance status')
     .skip((page - 1) * limit)
     .limit(limit)
     .sort({ createdAt: -1 });
@@ -71,7 +77,10 @@ const updateCustomer = async (req, res) => {
     phone: Joi.string().allow('', null).optional(),
     email: Joi.string().email().allow('', null).optional(),
     address: Joi.string().allow('', null).optional(),
-    creditLimit: Joi.number().optional(),
+    area: Joi.string().allow('', null).optional(),
+    cnic: Joi.string().allow('', null).optional(),
+    licenseNo: Joi.string().allow('', null).optional(),
+    customerNo: Joi.string().allow('', null).optional(),
     status: Joi.string().valid('active', 'locked').optional()
   });
   const { error, value } = schema.validate(req.body);

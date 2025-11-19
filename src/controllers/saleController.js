@@ -32,7 +32,10 @@ const formatSaleForPrint = async (sale) => {
 
       categorizedItems[categoryName].push({
         name: item.name,
-        qty: item.qty,
+        qty: item.qty, // Total pieces
+        qtyInUnits: item.qtyInUnits || 0,
+        unit: item.unit || 'PCS',
+        pcsPerUnit: item.pcsPerUnit || 1,
         unitPrice: item.unitPrice,
         lineTotal: item.qty * item.unitPrice
       });
@@ -43,7 +46,10 @@ const formatSaleForPrint = async (sale) => {
       }
       categorizedItems['Uncategorized'].push({
         name: item.name,
-        qty: item.qty,
+        qty: item.qty, // Total pieces
+        qtyInUnits: item.qtyInUnits || 0,
+        unit: item.unit || 'PCS',
+        pcsPerUnit: item.pcsPerUnit || 1,
         unitPrice: item.unitPrice,
         lineTotal: item.qty * item.unitPrice
       });
@@ -59,6 +65,7 @@ const formatSaleForPrint = async (sale) => {
       address: sale.customer.address
     } : null,
     categorizedItems,
+    items: sale.items,
     grossTotal: sale.grossTotal,
     discountAmount: sale.discountAmount,
     netTotal: sale.netTotal,
@@ -68,7 +75,17 @@ const formatSaleForPrint = async (sale) => {
     newBalance: sale.newBalance,
     isCredit: sale.isCredit,
     totalProfit: sale.totalProfit,
-    paymentMethod: sale.paymentMethod || 'cash'
+    paymentMethod: sale.paymentMethod || 'cash',
+
+    // Invoice metadata fields
+    customerNo: sale.customerNo,
+    area: sale.area,
+    deliveredBy: sale.deliveredBy,
+    bookedBy: sale.bookedBy,
+    licenseNo: sale.licenseNo,
+    cnic: sale.cnic,
+    orderNo: sale.orderNo,
+    dueDate: sale.dueDate
   };
 };
 
@@ -87,13 +104,26 @@ const createSale = async (req, res) => {
     customerId: Joi.string().allow(null,''),
     items: Joi.array().items(Joi.object({
       productId: Joi.string().required(),
-      qty: Joi.number().min(1).required(),
+      qty: Joi.number().min(1).required(), // Total pieces
+      qtyInUnits: Joi.number().min(0).optional(), // Quantity in product's unit
+      unit: Joi.string().allow('').optional(), // Unit type
+      pcsPerUnit: Joi.number().min(1).optional(), // Pieces per unit
       unitPrice: Joi.number().min(0).required()
     })).min(1).required(),
     discountAmount: Joi.number().min(0).default(0),
     amountPaid: Joi.number().min(0).default(0),
     paymentMethod: Joi.string().valid('cash', 'card', 'upi', 'credit').default('cash'),
-    isCredit: Joi.boolean().default(false)
+    isCredit: Joi.boolean().default(false),
+
+    // Invoice metadata fields
+    customerNo: Joi.string().allow(''),
+    area: Joi.string().allow(''),
+    deliveredBy: Joi.string().allow(''),
+    bookedBy: Joi.string().allow(''),
+    licenseNo: Joi.string().allow(''),
+    cnic: Joi.string().allow(''),
+    orderNo: Joi.string().allow(''),
+    dueDate: Joi.date().allow(null,'')
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
@@ -127,7 +157,10 @@ const createSale = async (req, res) => {
     itemsDetailed.push({
       product: product._id,
       name: product.name,
-      qty: it.qty,
+      qty: it.qty, // Total pieces
+      qtyInUnits: it.qtyInUnits || 0,
+      unit: it.unit || product.unit || 'PCS',
+      pcsPerUnit: it.pcsPerUnit || product.pcsPerUnit || 1,
       unitPrice: sellingPrice,
       costPrice,
       profitPerItem,
@@ -176,7 +209,17 @@ const createSale = async (req, res) => {
     paymentMethod: value.paymentMethod || 'cash',
     previousBalance,
     newBalance,
-    isCredit: value.isCredit
+    isCredit: value.isCredit,
+
+    // Invoice metadata fields
+    customerNo: value.customerNo,
+    area: value.area,
+    deliveredBy: value.deliveredBy,
+    bookedBy: value.bookedBy,
+    licenseNo: value.licenseNo,
+    cnic: value.cnic,
+    orderNo: value.orderNo,
+    dueDate: value.dueDate
   });
 
   // update customer ledger & running balance
