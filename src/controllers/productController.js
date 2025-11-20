@@ -12,11 +12,16 @@ const createProduct = async (req, res) => {
     pcsPerUnit: Joi.number().min(1).default(1),
     costPrice: Joi.number().required(),
     sellingPrice: Joi.number().required(),
-    stock: Joi.number().default(0),
+    stockInUnits: Joi.number().default(0), // Stock in CTN/KG (user enters this)
     minStock: Joi.number().default(0)
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
+
+  // Calculate total stock in pieces
+  const pcsPerUnit = value.pcsPerUnit || 1;
+  const stockInUnits = value.stockInUnits || 0;
+  const totalStock = stockInUnits * pcsPerUnit; // Total pieces
 
   const p = await Product.create({
     name: value.name,
@@ -24,12 +29,12 @@ const createProduct = async (req, res) => {
     barcode: value.barcode,
     category: value.category,
     unit: value.unit,
-    pcsPerUnit: value.pcsPerUnit || 1,
+    pcsPerUnit: pcsPerUnit,
     costPrice: value.costPrice,
     sellingPrice: value.sellingPrice,
-    stock: value.stock || 0,
+    stock: totalStock, // Store total pieces
     minStock: value.minStock || 0,
-    stockLedger: value.stock ? [{ type: 'in', qty: value.stock, note: 'opening' }] : []
+    stockLedger: totalStock ? [{ type: 'in', qty: totalStock, note: 'opening' }] : []
   });
 
   res.json(p);
@@ -81,13 +86,25 @@ const updateProduct = async (req, res) => {
     pcsPerUnit: Joi.number().min(1).optional(),
     costPrice: Joi.number().optional(),
     sellingPrice: Joi.number().optional(),
-    stock: Joi.number().optional(),
+    stockInUnits: Joi.number().optional(), // Stock in CTN/KG
     minStock: Joi.number().optional()
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
 
-  const product = await Product.findByIdAndUpdate(id, value, { new: true }).populate('category');
+  // Get current product to get pcsPerUnit if not provided
+  const currentProduct = await Product.findById(id);
+  if (!currentProduct) return res.status(404).json({ message: 'Product not found' });
+
+  // Calculate total stock in pieces if stockInUnits is provided
+  const updateData = { ...value };
+  if (value.stockInUnits !== undefined) {
+    const pcsPerUnit = value.pcsPerUnit || currentProduct.pcsPerUnit || 1;
+    updateData.stock = value.stockInUnits * pcsPerUnit; // Convert to total pieces
+    delete updateData.stockInUnits; // Remove stockInUnits from update data
+  }
+
+  const product = await Product.findByIdAndUpdate(id, updateData, { new: true }).populate('category');
   if (!product) return res.status(404).json({ message: 'Product not found' });
   res.json(product);
 };
