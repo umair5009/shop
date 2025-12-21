@@ -14,5 +14,6 @@ router.use('/purchases', require('./purchaseRoutes'));
 router.use('/bill', require('./billRoutes'));
 router.use('/payment', require('./paymentRoutes'));
 router.use('/reports', require('./reportRoutes'));
+router.use('/areas', require('./areaRoutes'));
 
 module.exports = router;

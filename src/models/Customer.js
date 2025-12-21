@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ledgerItem = new mongoose.Schema({
-  type: { type: String, enum: ['invoice','payment','adjustment'], required: true },
+  type: { type: String, enum: ['invoice', 'payment', 'adjustment'], required: true },
   amount: Number,
   date: { type: Date, default: Date.now },
   reference: String,
@@ -13,12 +13,12 @@ const customerSchema = new mongoose.Schema({
   phone: String,
   email: String,
   address: String,
-  area: String,
+  area: String, // stored as name for now to support legacy data
   cnic: String,
   licenseNo: String,
   customerNo: String,
   runningBalance: { type: Number, default: 0 }, // positive = customer owes
-  status: { type: String, enum: ['active','locked'], default: 'active' },
+  status: { type: String, enum: ['active', 'locked'], default: 'active' },
   ledger: [ledgerItem]
 }, { timestamps: true });
 
