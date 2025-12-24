@@ -31,7 +31,9 @@ const saleSchema = new mongoose.Schema({
   customerNo: String,
   area: String,
   deliveredBy: String,
+  deliveredByNo: Number,  // Delivered By reference number
   bookedBy: String,
+  orderByNo: Number,  // Order By reference number
   licenseNo: String,
   cnic: String,
   orderNo: String,

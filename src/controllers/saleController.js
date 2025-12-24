@@ -81,7 +81,9 @@ const formatSaleForPrint = async (sale) => {
     customerNo: sale.customerNo,
     area: sale.area,
     deliveredBy: sale.deliveredBy,
+    deliveredByNo: sale.deliveredByNo,
     bookedBy: sale.bookedBy,
+    orderByNo: sale.orderByNo,
     licenseNo: sale.licenseNo,
     cnic: sale.cnic,
     orderNo: sale.orderNo,
@@ -101,7 +103,7 @@ const createSale = async (req, res) => {
   */
 
   const schema = Joi.object({
-    customerId: Joi.string().allow(null,''),
+    customerId: Joi.string().allow(null, ''),
     items: Joi.array().items(Joi.object({
       productId: Joi.string().required(),
       qty: Joi.number().min(1).required(), // Total pieces
@@ -119,11 +121,13 @@ const createSale = async (req, res) => {
     customerNo: Joi.string().allow(''),
     area: Joi.string().allow(''),
     deliveredBy: Joi.string().allow(''),
+    deliveredByNo: Joi.number().allow(null, ''),
     bookedBy: Joi.string().allow(''),
+    orderByNo: Joi.number().allow(null, ''),
     licenseNo: Joi.string().allow(''),
     cnic: Joi.string().allow(''),
     orderNo: Joi.string().allow(''),
-    dueDate: Joi.date().allow(null,'')
+    dueDate: Joi.date().allow(null, '')
   });
   const { error, value } = schema.validate(req.body);
   if (error) return res.status(400).json({ message: error.message });
@@ -215,7 +219,9 @@ const createSale = async (req, res) => {
     customerNo: value.customerNo,
     area: value.area,
     deliveredBy: value.deliveredBy,
+    deliveredByNo: value.deliveredByNo,
     bookedBy: value.bookedBy,
+    orderByNo: value.orderByNo,
     licenseNo: value.licenseNo,
     cnic: value.cnic,
     orderNo: value.orderNo,
